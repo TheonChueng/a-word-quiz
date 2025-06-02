@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词大挑战 - 记忆测试</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cute-theme.css">
+</head>
+<body>
+    <!-- 音频元素 -->
+    <audio id="bgm" src="audio/BGM.mp3" loop></audio>
+    <audio id="sound-hover" src="audio/hover.mp3"></audio>
+    <audio id="sound-click" src="audio/click.mp3"></audio>
+    <audio id="sound-correct" src="audio/correct.mp3"></audio>
+    <audio id="sound-incorrect" src="audio/incorrect.mp3"></audio>
+    <audio id="sound-complete" src="audio/complete.mp3"></audio>
+    
+    <!-- 开始界面 -->
+    <div id="welcome-screen" class="screen active">
+        <div class="logo-container">
+            <div class="app-logo">📚</div>
+            <h1 class="welcome-title">欢迎来到单词大挑战！</h1>
+        </div>
+        
+        <div class="illustration">
+            <div class="cute-animals">
+                🐱 🐶 🐰 🦊
+            </div>
+            <p class="subtitle">和小动物们一起学习英语单词吧！</p>
+        </div>
+        
+        <div class="button-container">
+            <button id="start-test-btn" class="primary-btn">🌟 开始测试</button>
+            <button id="view-history-btn" class="secondary-btn">📊 查看历史记录</button>
+            <button id="review-mistakes-hub-btn" class="secondary-btn">🧠 错题回顾</button>
+            <button id="settings-btn" class="secondary-btn">⚙️ 设置</button>
+        </div>
+    </div>
+
+    <!-- 设置界面 -->
+    <div id="settings-screen" class="screen">
+        <div class="screen-header">
+            <button id="settings-back-btn" class="icon-btn">🏠</button>
+            <h2 class="screen-title">⚙️ 设置</h2>
+        </div>
+        
+        <div class="settings-container">
+            <div class="settings-section">
+                <h3>基本设置</h3>
+                <div class="setting-item">
+                    <span class="setting-label">背景音乐</span>
+                    <label class="switch">
+                        <input type="checkbox" id="bgm-switch" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <span class="setting-label">音效</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sound-effects-switch" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>测试设置</h3>
+                <div class="settings-item">
+                    <label for="csv-file" class="file-label">📁 导入词汇文件</label>
+                    <input type="file" id="csv-file" accept=".csv" style="display: none;">
+                    <p class="setting-description">导入CSV格式的词汇文件，用于单词测试</p>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>数据管理</h3>
+                <div class="settings-item">
+                    <button id="export-db-btn" class="secondary-btn">📤 导出数据库</button>
+                    <p class="setting-description">将数据库导出为文件，可用于备份或在不同浏览器间迁移数据</p>
+                </div>
+                
+                <div class="settings-item">
+                    <label for="import-db-file" class="file-label">📥 导入数据库</label>
+                    <input type="file" id="import-db-file" accept=".sqlite" style="display: none;">
+                    <p class="setting-description">从文件导入数据库，将覆盖当前数据</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 题目数量选择界面 -->
+    <div id="question-count-screen" class="screen">
+        <div class="logo-container">
+            <div class="app-logo">📝</div>
+            <h1 class="welcome-title">选择测试题目数量</h1>
+        </div>
+        
+        <div class="illustration">
+            <div class="cute-animals">
+                🎯 📊 🎪 🏆
+            </div>
+            <p class="subtitle">选择你想要挑战的题目数量吧！</p>
+        </div>
+        
+        <div class="question-count-options">
+            <button class="count-option-btn" data-count="10">
+                <span class="count-number">10</span>
+                <span class="count-label">题</span>
+                <span class="count-desc">快速练习</span>
+            </button>
+            <button class="count-option-btn" data-count="20">
+                <span class="count-number">20</span>
+                <span class="count-label">题</span>
+                <span class="count-desc">标准测试</span>
+            </button>
+            <button class="count-option-btn" data-count="30">
+                <span class="count-number">30</span>
+                <span class="count-label">题</span>
+                <span class="count-desc">进阶挑战</span>
+            </button>
+            <button class="count-option-btn" data-count="40">
+                <span class="count-number">40</span>
+                <span class="count-label">题</span>
+                <span class="count-desc">专家模式</span>
+            </button>
+        </div>
+        
+        <div class="button-container">
+            <button id="count-go-back-btn" class="secondary-btn">⬅️ 返回上一页</button>
+            <button id="count-back-btn" class="secondary-btn">🏠 返回首页</button>
+        </div>
+    </div>
+
+    <!-- 测试界面 -->
+    <div id="quiz-screen" class="screen">
+        <div class="quiz-header">
+            <button id="back-btn" class="icon-btn">🏠</button>
+            <div class="progress-info">
+                <span id="question-progress">第 1/20 题</span>
+            </div>
+            <div class="timer">
+                <span id="timer-display">00:00</span>
+            </div>
+        </div>
+        
+        <div class="word-container">
+            <div id="current-word" class="word-display">Loading...</div>
+        </div>
+        
+        <div class="options-container">
+            <button class="option-btn" data-option="A" id="option-a">
+                <span class="option-label">A.</span>
+                <span class="option-text">选项A</span>
+            </button>
+            <button class="option-btn" data-option="B" id="option-b">
+                <span class="option-label">B.</span>
+                <span class="option-text">选项B</span>
+            </button>
+            <button class="option-btn" data-option="C" id="option-c">
+                <span class="option-label">C.</span>
+                <span class="option-text">选项C</span>
+            </button>
+        </div>
+        
+        <div class="hint-container">
+            <button id="hint-btn" class="hint-btn">💡 提示</button>
+        </div>
+    </div>
+
+    <!-- 答案反馈界面 -->
+    <div id="feedback-screen" class="screen">
+        <div class="quiz-header">
+            <button id="feedback-back-btn" class="icon-btn">🏠</button>
+            <div class="progress-info">
+                <span id="feedback-progress">第 1/20 题</span>
+            </div>
+            <div class="timer">
+                <span id="feedback-timer">00:00</span>
+            </div>
+        </div>
+        
+        <div class="word-container">
+            <div id="feedback-word" class="word-display">adorable</div>
+        </div>
+        
+        <div class="feedback-container">
+            <div id="feedback-message" class="feedback-message">
+                <span class="feedback-icon">😊</span>
+                <span class="feedback-text">太棒了，回答正确！</span>
+            </div>
+            
+            <div class="answer-details">
+                <div id="user-answer" class="answer-line"></div>
+                <div id="correct-answer" class="answer-line"></div>
+                <div id="example-sentence" class="example-sentence"></div>
+                <div id="notes" class="notes"></div>
+            </div>
+            
+            <button id="next-question-btn" class="primary-btn">下一题 ➡️</button>
+        </div>
+    </div>
+
+    <!-- 测试结果界面 -->
+    <div id="results-screen" class="screen">
+        <div class="logo-container">
+            <div class="app-logo">🏆</div>
+            <h1 class="results-title">🎉 恭喜你完成测试！ 🎉</h1>
+        </div>
+        
+        <div class="celebration">
+            <div class="celebration-animals">
+                🎊 🐱 🎉 🐶 🎊 🐰 🎉 🦊 🎊
+            </div>
+        </div>
+        
+        <div class="results-container">
+            <div class="score-display">
+                <div class="score-item">
+                    <span class="score-label">你的得分:</span>
+                    <span id="final-score" class="score-value">90</span>
+                    <span class="score-unit">分 / <span id="max-score">100</span> 分</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">测试用时:</span>
+                    <span id="final-time" class="score-value">05:30</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">答对题数:</span>
+                    <span id="final-correct" class="score-value">18</span>
+                    <span class="score-unit">/ <span id="total-questions">20</span></span>
+                </div>
+            </div>
+            
+            <div class="results-buttons">
+                <button id="view-mistakes-btn" class="secondary-btn">📝 查看错题</button>
+                <button id="restart-test-btn" class="primary-btn">🔄 再来一轮</button>
+                <button id="back-to-home-btn" class="secondary-btn">🏠 返回首页</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 历史记录界面 -->
+    <div id="history-screen" class="screen">
+        <div class="screen-header">
+            <button id="history-back-btn" class="icon-btn">🏠</button>
+            <h2 class="screen-title">📊 历史记录</h2>
+        </div>
+        
+        <div id="history-list" class="history-list">
+            <!-- 历史记录将动态生成 -->
+        </div>
+        
+        <div class="empty-history" id="empty-history" style="display: none;">
+            <div class="empty-icon">📝</div>
+            <p>还没有测试记录哦！<br>快去开始你的第一次测试吧！</p>
+        </div>
+    </div>
+
+    <!-- 错题回顾界面 -->
+    <div id="mistakes-screen" class="screen">
+        <div class="screen-header">
+            <button id="mistakes-go-back-btn" class="icon-btn">⬅️</button>
+            <button id="mistakes-back-btn" class="icon-btn">🏠</button>
+            <h2 class="screen-title">📝 错题回顾</h2>
+        </div>
+        
+        <div id="mistakes-list" class="mistakes-list">
+            <!-- 错题将动态生成 -->
+        </div>
+        
+        <div class="no-mistakes" id="no-mistakes" style="display: none;">
+            <div class="success-icon">🎉</div>
+            <p>太棒了！这次测试没有错题！</p>
+        </div>
+    </div>
+
+    <!-- 错题功能选择界面 -->
+    <div id="wrong-question-hub-screen" class="screen">
+        <div class="logo-container">
+            <div class="app-logo">🧠</div>
+            <h1 class="welcome-title">错题回顾中心</h1>
+        </div>
+        
+        <div class="illustration">
+            <div class="cute-animals">
+                📚 💡 🎯 📝
+            </div>
+            <p class="subtitle">复习错题，巩固记忆！</p>
+        </div>
+        
+        <div class="button-container">
+            <button id="view-all-wrong-words-btn" class="primary-btn">📋 查看错题汇总</button>
+            <button id="start-wrong-quiz-btn" class="secondary-btn">🎯 开始错题测试</button>
+            <button id="hub-back-btn" class="secondary-btn">🏠 返回首页</button>
+        </div>
+    </div>
+
+    <!-- 查看所有历史错词汇总表界面 -->
+    <div id="all-wrong-words-screen" class="screen">
+        <div class="screen-header">
+            <button id="all-wrong-go-back-btn" class="icon-btn">⬅️</button>
+            <button id="all-wrong-back-btn" class="icon-btn">🏠</button>
+            <h2 class="screen-title">📋 错题汇总表</h2>
+            <button id="clear-wrong-pool-btn" class="clear-btn">🗑️ 清空错题池</button>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-item">
+                <span class="stat-label">错题总数:</span>
+                <span id="total-wrong-count" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">平均错误次数:</span>
+                <span id="avg-error-count" class="stat-value">0</span>
+            </div>
+        </div>
+        
+        <div id="all-wrong-words-list" class="all-wrong-words-list">
+            <!-- 错题汇总将动态生成 -->
+        </div>
+        
+        <div class="empty-wrong-pool" id="empty-wrong-pool" style="display: none;">
+            <div class="empty-icon">🎉</div>
+            <p>太棒了！错题池是空的！<br>继续保持，加油学习！</p>
+        </div>
+    </div>
+
+    <!-- 加载提示 -->
+    <div id="loading" class="loading" style="display: none;">
+        <div class="loading-spinner">⭐</div>
+        <p>正在加载词汇...</p>
+    </div>
+
+    <!-- 错误提示 -->
+    <div id="error-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="error-icon">😅</div>
+            <h3>哎呀，出了点小问题</h3>
+            <p id="error-message">请检查词汇文件格式是否正确</p>
+            <button id="error-ok-btn" class="primary-btn">知道了</button>
+        </div>
+    </div>
+
+    <!-- In index.html, before your other scripts (e.g., vocabulary.js) -->
+    <script src="lib/localforage.min.js"></script>
+    <script src="lib/sql-wasm.js"></script>
+    <script>
+        console.log('DEBUG: typeof initSqlJs immediately after sql-wasm.js script tag:', typeof initSqlJs);
+    </script>
+    <script src="js/storage.js"></script>
+    <script src="js/vocabulary.js"></script>
+    <script src="js/quiz.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
